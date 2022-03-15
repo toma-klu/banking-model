@@ -9,17 +9,23 @@ class BankingModel:
     pass
 
 
+# TODO sounds like a function. CardAccount
 class RegisterCardAccount:
     def __init__(
+        # TODO Try using typehints
         self, account_nbr, owner_name, owner_surname, balance=0, currency="EUR"
     ):
         self.account_nbr = account_nbr
         self.owner_name = owner_name
         self.owner_surname = owner_surname
         self.balance = balance
+        # TODO for currency we should have a validation
+        # TODO currency itself could be a class   `currency = Currency("EUR")`
         self.currency = currency
 
     def change_owner_name(self, owner_name):
+        # TODO, maybe a bit later, is to have a class called Person that could have many accounts"
+        # How we would define a person that has multiple cards.
         self.owner_name = owner_name
 
     def change_owner_surname(self, owner_surname):
@@ -36,10 +42,12 @@ class RegisterCardAccount:
         if amount <= self.balance:
             self.balance -= amount
         else:
+            # TODO raise Exception
+            # TODO better create a custom exception called InsufficientFunds and raise it.
             print("Insufficient funds")
 
     def transfer_money(self, amount):
-        pass
+        raise NotImplementedError
 
 
 class CreditCard(RegisterCardAccount):
@@ -69,7 +77,7 @@ class CreditCard(RegisterCardAccount):
         self.due_date_day = due_date_day
 
     def __repr__(self):
-        next_month = calendar.nextmonth(
+        next_month = calendar._nextmonth(
             year=date.today().year, month=date.today().month
         )
         next_month = calendar.month_name[next_month[1]]
@@ -82,22 +90,11 @@ class CreditCard(RegisterCardAccount):
         )
 
 
+# TODO why debit card inherits from RegisterCardAccount???
+# This only adds repr method, why not just add it to RegisterCardAccount
 class DebitCard(RegisterCardAccount):
     def __repr__(self):
         return (
             f"Account number: {self.account_nbr}\n"
             f"Balance: {self.balance} {self.currency}"
         )
-
-
-credit_card_1 = CreditCard(
-    account_nbr="LT000000001",
-    owner_name="Jonas",
-    owner_surname="Jonaitis",
-    credit_limit=1000,
-)
-print(credit_card_1)
-credit_card_1.owner_name
-credit_card_1.change_owners_name("Jonukas")
-credit_card_1.owner_name
-credit_card_1.credit_limit
