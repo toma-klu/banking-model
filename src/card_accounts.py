@@ -11,18 +11,20 @@ class CardAccount(BankCustomer, Currency):
         personal_id_nbr: str,
         name: str,
         surname: str,
-        currency: str = "EUR",
+        currency_code: str = "EUR",
         balance: float = 0,
         status: str = "ACTIVE",
     ) -> None:
-        BankCustomer.__init__(self, personal_id_nbr, name, surname)
-        Currency.__init__(self, currency)
+        # Add validation
+        self.customer = BankCustomer(personal_id_nbr, name, surname)
+        self.currency = Currency(currency_code)
         self.account_nbr = account_nbr
         self.balance = balance
         self.status = status
 
+    # Ar pagal bankinga yra imanoma keisti korteles valiuta?
     def change_currency(self, currency: str) -> None:
-        Currency.change_currency(self, currency)
+        self.currency.change_currency(currency)
         self.balance *= self.exchange_rate
 
     def deposit_money(self, amount: float) -> None:
