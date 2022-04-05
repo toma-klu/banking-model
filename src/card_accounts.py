@@ -1,31 +1,16 @@
 import calendar
 from datetime import date
-from src.persons import BankCustomer
-from src.helpers import InsufficientFunds, Currency
+from src.errors import InsufficientFundsError
 
 
-class CardAccount(BankCustomer, Currency):
+class CardAccount:
     def __init__(
-        self,
-        account_nbr: str,
-        personal_id_nbr: str,
-        name: str,
-        surname: str,
-        currency_code: str = "EUR",
-        balance: float = 0,
-        status: str = "ACTIVE",
+        self, account_nbr: str, currency_code: str, balance: float, status: str
     ) -> None:
-        # Add validation
-        self.customer = BankCustomer(personal_id_nbr, name, surname)
-        self.currency = Currency(currency_code)
         self.account_nbr = account_nbr
+        self.currency_code = currency_code
         self.balance = balance
         self.status = status
-
-    # Ar pagal bankinga yra imanoma keisti korteles valiuta?
-    def change_currency(self, currency: str) -> None:
-        self.currency.change_currency(currency)
-        self.balance *= self.exchange_rate
 
     def deposit_money(self, amount: float) -> None:
         self.balance += amount
@@ -34,19 +19,16 @@ class CardAccount(BankCustomer, Currency):
         if amount <= self.balance:
             self.balance -= amount
         else:
-            raise InsufficientFunds()
-
-    # Finalize this method
-    def transfer_money(self, amount: float, account_nbr: str) -> None:
-        if amount <= self.balance:
-            pass
-        else:
-            raise InsufficientFunds()
+            raise InsufficientFundsError(
+                f"Withdrawal ({amount} {self.currency_code}) cannot be bigger "
+                f"than balance ({self.balance} {self.currency_code})."
+            )
 
     def __repr__(self) -> str:
         return (
             f"Account number: {self.account_nbr}\n"
-            f"Balance: {self.balance} {self.currency}"
+            f"Balance: {self.balance} {self.currency_code}\n"
+            f"Status: {self.status}"
         )
 
 
@@ -54,35 +36,23 @@ class CreditCard(CardAccount):
     def __init__(
         self,
         account_nbr: str,
-        personal_id_nbr: str,
-        name: str,
-        surname: str,
-        currency: str = "EUR",
-        balance: float = 0,
-        status: str = "ACTIVE",
-        credit_limit: float = 0,
-        interest_rate: float = 0,
-        due_date_day: int = 1,
+        currency_code: str,
+        balance: float,
+        status: str,
+        credit_limit: float,
+        interest_rate: float,
+        due_date_day: int,
     ) -> None:
         CardAccount.__init__(
             self,
             account_nbr,
-            personal_id_nbr,
-            name,
-            surname,
-            currency,
+            currency_code,
             balance,
             status,
         )
         self.credit_limit = credit_limit
         self.interest_rate = interest_rate
         self.due_date_day = due_date_day
-
-    def change_credit_limit(self, credit_limit: float) -> None:
-        self.credit_limit = credit_limit
-
-    def change_interest_rate(self, interest_rate: float) -> None:
-        self.interest_rate = interest_rate
 
     def change_due_date_day(self, due_date_day: int) -> None:
         self.due_date_day = due_date_day
@@ -94,10 +64,11 @@ class CreditCard(CardAccount):
         next_month = calendar.month_name[next_month[1]]
         return (
             f"Account number: {self.account_nbr}\n"
-            f"Balance: {self.balance} {self.currency}\n"
-            f"Credit limit: {self.credit_limit} {self.currency}\n"
+            f"Balance: {self.balance} {self.currency_code}\n"
+            f"Credit limit: {self.credit_limit} {self.currency_code}\n"
             f"Interest rate: {self.interest_rate} %\n"
-            f"Interest calculation starts from: {next_month} {self.due_date_day}"
+            f"Interest calculation starts from: {next_month} {self.due_date_day}\n"
+            f"Status: {self.status}"
         )
 
 
